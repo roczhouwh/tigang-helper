@@ -1,5 +1,7 @@
 感谢[程序员鱼皮]
 
+> 本项目由 **Claude Code** 完成，使用 **deepseek-v4-pro** 模型驱动开发。
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
