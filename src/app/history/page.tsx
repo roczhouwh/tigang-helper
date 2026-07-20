@@ -1,12 +1,50 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useTrainingHistory } from '@/hooks/useTrainingHistory';
 import CalendarHeatmap from '@/components/history/CalendarHeatmap';
 import StatsCharts from '@/components/history/StatsCharts';
 
 export default function HistoryPage() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // 始终在 early return 之前调用所有 hooks
   const { records, totalDays, totalMinutes, avgScore, streak, getDatesWithRecords } =
     useTrainingHistory();
+
+  // 仅在客户端读取 localStorage，避免 hydration 不匹配
+  if (!mounted) {
+    return (
+      <div className="py-8 space-y-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-slate-deep">训练记录</h1>
+          <p className="text-sm text-slate-400 mt-1">每一次坚持都值得记录</p>
+        </div>
+        {/* 骨架屏 */}
+        <div className="grid grid-cols-2 gap-3">
+          {Array.from({ length: 4 }, (_, i) => (
+            <div key={i} className="bg-white rounded-2xl p-4 border border-slate-100">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 mb-3" />
+              <div className="h-8 w-16 bg-slate-100 rounded mb-1" />
+              <div className="h-4 w-12 bg-slate-50 rounded" />
+            </div>
+          ))}
+        </div>
+        <div className="bg-white rounded-2xl p-5 border border-slate-100">
+          <div className="h-5 w-24 bg-slate-100 rounded mb-4" />
+          <div className="grid grid-cols-7 gap-1.5">
+            {Array.from({ length: 35 }, (_, i) => (
+              <div key={i} className="aspect-square rounded-lg bg-slate-50" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const datesWithRecords = getDatesWithRecords();
 

@@ -1,13 +1,19 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 interface Props {
   datesWithRecords: Set<string>;
 }
 
 export default function CalendarHeatmap({ datesWithRecords }: Props) {
-  const today = new Date();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const today = useMemo(() => new Date(), [mounted]);
   const currentYear = today.getFullYear();
   const currentMonth = today.getMonth();
 
@@ -28,6 +34,20 @@ export default function CalendarHeatmap({ datesWithRecords }: Props) {
   }, [datesWithRecords, currentYear, currentMonth, today]);
 
   const monthLabel = `${currentYear}年${currentMonth + 1}月`;
+
+  // SSR 时渲染骨架避免 hydration 不匹配
+  if (!mounted) {
+    return (
+      <div className="bg-white rounded-2xl p-5 border border-slate-100">
+        <h3 className="text-base font-semibold text-slate-deep mb-4">加载中...</h3>
+        <div className="grid grid-cols-7 gap-1.5">
+          {Array.from({ length: 35 }, (_, i) => (
+            <div key={i} className="aspect-square rounded-lg bg-slate-50" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-2xl p-5 border border-slate-100">
