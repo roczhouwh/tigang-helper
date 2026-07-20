@@ -21,7 +21,7 @@ export default function TrainingTimer({ totalTimeLeft, actionTimeLeft, progress,
       {/* 当前动作倒计时 */}
       <div className="flex items-center justify-center">
         <motion.div
-          className="text-7xl font-bold text-slate-deep tracking-tight tabular-nums"
+          className="text-4xl font-bold text-slate-deep tracking-tight tabular-nums"
           key={actionTimeLeft}
           initial={{ scale: 1.08, opacity: 0.8 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -29,21 +29,6 @@ export default function TrainingTimer({ totalTimeLeft, actionTimeLeft, progress,
         >
           {formatTime(actionTimeLeft)}
         </motion.div>
-      </div>
-
-      {/* 总进度条 */}
-      <div className="space-y-1.5">
-        <div className="flex justify-between text-xs text-slate-400">
-          <span>总进度</span>
-          <span className="tabular-nums">{formatTime(totalTimeLeft)}</span>
-        </div>
-        <div className="h-1.5 bg-sage-light rounded-full overflow-hidden">
-          <motion.div
-            className="h-full bg-gradient-to-r from-sage to-[#3D6B4F] rounded-full"
-            style={{ width: `${progress}%` }}
-            transition={{ duration: 0.3 }}
-          />
-        </div>
       </div>
     </div>
   );

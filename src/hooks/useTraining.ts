@@ -78,6 +78,21 @@ export function useTraining(course: Course) {
               totalTimeLeft: newTotalLeft,
             };
           }
+          // 所有动作已完成
+          clearTimer();
+          const score = totalPostureChecksRef.current > 0
+            ? Math.round(100 - (postureIssuesRef.current / totalPostureChecksRef.current) * 100)
+            : 100;
+          const record: TrainingRecord = {
+            date: new Date().toISOString().split('T')[0],
+            courseId: course.id,
+            courseName: course.name,
+            duration: course.totalDuration,
+            completed: true,
+            postureScore: score,
+          };
+          saveRecord(record);
+          return { ...s, status: 'completed', actionTimeLeft: 0, totalTimeLeft: 0 };
         }
 
         return { ...s, actionTimeLeft: newTimeLeft, totalTimeLeft: newTotalLeft };

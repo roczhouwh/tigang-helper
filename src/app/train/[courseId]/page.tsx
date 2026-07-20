@@ -85,58 +85,99 @@ export default function TrainPage({ params }: { params: Promise<{ courseId: stri
     );
   }
 
-  const btnPrimary = "px-6 py-2.5 bg-sage text-white rounded-xl font-semibold hover:bg-[#4A7A49] shadow-sm transition-all";
-  const btnSecondary = "px-6 py-2.5 bg-white text-slate-deep rounded-xl font-medium border border-slate-200 hover:bg-slate-50 transition-all";
-  const btnDanger = "px-6 py-2.5 bg-terracotta-light text-terracotta rounded-xl font-medium hover:bg-terracotta/10 transition-all";
+  const btnSm = "px-3 py-1.5 text-xs rounded-lg font-medium transition-all";
+  const btnPrimary = `${btnSm} bg-sage text-white hover:bg-[#4A7A49] shadow-sm`;
+  const btnSecondary = `${btnSm} bg-white text-slate-deep border border-slate-200 hover:bg-slate-50`;
+  const btnDanger = `${btnSm} bg-terracotta-light text-terracotta hover:bg-terracotta/10`;
 
   return (
-    <div className="py-4 space-y-6 min-h-[calc(100vh-3.5rem)] flex flex-col">
-      {/* 返回 */}
-      <button
-        onClick={() => router.push('/')}
-        className="text-slate-400 hover:text-slate-deep text-sm flex items-center gap-1 w-fit"
-      >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M10 4L6 8L10 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-        返回选课
-      </button>
-
-      {/* 标题 */}
-      <div className="text-center">
-        <h2 className="text-lg font-semibold text-slate-deep">{course.name}</h2>
-        <p className="text-sm text-slate-400 mt-1">
-          {course.actionCount} 个动作 · {Math.floor(course.totalDuration / 60)} 分钟
-        </p>
+    <div className="py-3 space-y-3">
+      {/* ── 顶部：返回 + 课程名 + 动作信息 ── */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => router.push('/')}
+          className="text-slate-400 hover:text-slate-deep text-xs flex items-center gap-1"
+        >
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <path d="M10 4L6 8L10 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          返回
+        </button>
+        <div className="text-center">
+          <h2 className="text-sm font-semibold text-slate-deep">{course.name}</h2>
+          <p className="text-xs text-slate-400">
+            {course.actionCount} 动作 · {Math.floor(course.totalDuration / 60)} 分钟
+          </p>
+        </div>
+        <div className="w-10" /> {/* spacer for centering */}
       </div>
 
-      {/* 核心训练区域 */}
-      <div className="flex-1 flex flex-col items-center justify-center space-y-8">
+      {/* ── 控制按钮 + 进度条（顶部区域）── */}
+      <div className="bg-white rounded-xl p-3 border border-slate-100 space-y-2.5">
+        {/* 按钮行 */}
+        <div className="flex justify-center gap-2">
+          {state.status === 'idle' && (
+            <button onClick={start} className="px-8 py-2 bg-sage text-white rounded-xl font-semibold hover:bg-[#4A7A49] shadow-sm text-sm">
+              开始训练
+            </button>
+          )}
+          {state.status === 'active' && (
+            <>
+              <button onClick={pause} className={btnSecondary}>⏸ 暂停</button>
+              <button onClick={toggleCamera} className={state.isCameraOn ? btnDanger : btnSecondary}>
+                {state.isCameraOn ? '📷 关闭' : '📷 姿势检测'}
+              </button>
+            </>
+          )}
+          {state.status === 'paused' && (
+            <>
+              <button onClick={resume} className={btnPrimary}>▶ 继续</button>
+              <button onClick={reset} className={btnSecondary}>↺ 重新开始</button>
+            </>
+          )}
+          {state.status === 'completed' && (
+            <>
+              <button onClick={reset} className={btnPrimary}>再来一次</button>
+              <button onClick={() => router.push('/history')} className={btnSecondary}>查看记录</button>
+            </>
+          )}
+        </div>
+
+        {/* 进度条 */}
+        {(state.status === 'active' || state.status === 'paused') && (
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs text-slate-400">
+              <span>总进度</span>
+              <span className="tabular-nums">{Math.floor(state.totalTimeLeft / 60)}:{String(state.totalTimeLeft % 60).padStart(2, '0')}</span>
+            </div>
+            <div className="h-1.5 bg-sage-light rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-sage to-[#3D6B4F] rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── 中央训练区域 ── */}
+      <div className="flex flex-col items-center space-y-3">
         {/* 倒计时 */}
         {state.status === 'countdown' && (
-          <div className="text-center py-12">
-            <p className="text-8xl font-bold text-sage animate-pulse">3</p>
-            <p className="text-slate-400 mt-6 text-lg">准备开始...</p>
+          <div className="text-center py-6">
+            <p className="text-6xl font-bold text-sage animate-pulse">3</p>
+            <p className="text-slate-400 mt-2 text-sm">准备开始...</p>
           </div>
         )}
 
         {/* 训练中 */}
         {(state.status === 'active' || state.status === 'paused') && currentAction && (
-          <div className="flex flex-col items-center space-y-8 w-full">
-            <BreathCircle
-              pattern={currentAction.breathPattern}
-              isActive={state.status === 'active'}
-            />
-            <div className="flex items-center gap-4">
-              <PoseGuide
-                actionType={currentAction.type}
-                isActive={state.status === 'active'}
-              />
+          <>
+            <div className="flex items-center gap-2">
+              <BreathCircle pattern={currentAction.breathPattern} isActive={state.status === 'active'} size={160} />
+              <PoseGuide actionType={currentAction.type} isActive={state.status === 'active'} />
             </div>
-            <ActionIndicator
-              type={currentAction.type}
-              instruction={currentAction.instruction}
-            />
+            <ActionIndicator type={currentAction.type} instruction={currentAction.instruction} />
             <TrainingTimer
               totalTimeLeft={state.totalTimeLeft}
               actionTimeLeft={state.actionTimeLeft}
@@ -148,55 +189,28 @@ export default function TrainPage({ params }: { params: Promise<{ courseId: stri
               actionIndex={state.currentActionIndex}
               isActive={state.status === 'active'}
             />
-          </div>
+          </>
         )}
 
         {/* 完成 */}
         {state.status === 'completed' && (
-          <div className="text-center space-y-5">
-            <div className="text-7xl">🎉</div>
-            <h3 className="text-2xl font-bold text-slate-deep">训练完成！</h3>
-            <p className="text-slate-soft">你做得很好，坚持就是胜利</p>
-            <div className="flex gap-3 justify-center pt-2">
-              <button onClick={reset} className={btnPrimary}>再来一次</button>
-              <button onClick={() => router.push('/history')} className={btnSecondary}>查看记录</button>
-            </div>
+          <div className="text-center space-y-2 py-4">
+            <div className="text-5xl">🎉</div>
+            <h3 className="text-xl font-bold text-slate-deep">训练完成！</h3>
+            <p className="text-sm text-slate-soft">你做得很好，坚持就是胜利</p>
           </div>
         )}
 
         {/* 空闲 */}
         {state.status === 'idle' && (
-          <div className="text-center space-y-8">
-            <div className="text-7xl">🧘</div>
-            <div>
-              <p className="text-slate-soft text-lg mb-6">调整好坐姿，准备开始</p>
-              <button onClick={start} className={`${btnPrimary} text-lg px-10 py-3.5`}>
-                开始训练
-              </button>
-            </div>
+          <div className="text-center space-y-4 py-6">
+            <div className="text-5xl">🧘</div>
+            <p className="text-slate-soft">调整好坐姿，准备开始</p>
           </div>
         )}
       </div>
 
-      {/* 控制按钮 */}
-      <div className="pt-2">
-        {state.status === 'active' && (
-          <div className="flex justify-center gap-3">
-            <button onClick={pause} className={btnSecondary}>暂停</button>
-            <button onClick={toggleCamera} className={state.isCameraOn ? btnDanger : btnSecondary}>
-              {state.isCameraOn ? '关闭摄像头' : '姿势检测'}
-            </button>
-          </div>
-        )}
-        {state.status === 'paused' && (
-          <div className="flex justify-center gap-3">
-            <button onClick={resume} className={btnPrimary}>继续训练</button>
-            <button onClick={reset} className={btnSecondary}>重新开始</button>
-          </div>
-        )}
-      </div>
-
-      {/* 摄像头 + 姿势反馈 */}
+      {/* ── 底部：摄像头 + 姿势反馈（紧凑）── */}
       <CameraView isActive={state.isCameraOn} onPostureUpdate={handlePostureUpdate} />
       <PostureFeedback analysis={state.postureIssue} aiFeedback={state.aiFeedback} />
     </div>
