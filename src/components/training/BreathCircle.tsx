@@ -9,7 +9,7 @@ interface Props {
   size?: number;
 }
 
-export default function BreathCircle({ pattern, isActive, size = 260 }: Props) {
+export default function BreathCircle({ pattern, isActive, size = 160 }: Props) {
   const getScale = () => {
     switch (pattern) {
       case 'inhale': return [1, 0.55];
@@ -18,26 +18,26 @@ export default function BreathCircle({ pattern, isActive, size = 260 }: Props) {
     }
   };
 
-  // Warm, organic color palette
+  // Medical teal + health green palette
   const getColors = () => {
     switch (pattern) {
       case 'inhale':
         return {
-          main: 'from-[#E8B4A2] to-[#D4917A]',
-          glow: 'bg-[#E8B4A2]',
-          ring: 'border-[#E8B4A2]/30',
+          main: 'from-[#22D3EE] to-[#0891B2]',
+          glow: 'bg-[#0891B2]',
+          ring: 'border-[#0891B2]/30',
         };
       case 'exhale':
         return {
-          main: 'from-[#5B8C5A] to-[#3D6B4F]',
-          glow: 'bg-[#5B8C5A]',
-          ring: 'border-[#5B8C5A]/30',
+          main: 'from-[#16A34A] to-[#15803D]',
+          glow: 'bg-[#16A34A]',
+          ring: 'border-[#16A34A]/30',
         };
       case 'hold':
         return {
-          main: 'from-[#F2CC8F] to-[#E0A85C]',
-          glow: 'bg-[#F2CC8F]',
-          ring: 'border-[#F2CC8F]/30',
+          main: 'from-[#F59E0B] to-[#D97706]',
+          glow: 'bg-[#F59E0B]',
+          ring: 'border-[#F59E0B]/30',
         };
     }
   };
@@ -45,7 +45,7 @@ export default function BreathCircle({ pattern, isActive, size = 260 }: Props) {
   const getLabel = () => {
     switch (pattern) {
       case 'inhale': return '吸气';
-      case 'exhale': return '收紧';
+      case 'exhale': return '呼气';
       case 'hold': return '保持';
     }
   };
@@ -55,7 +55,7 @@ export default function BreathCircle({ pattern, isActive, size = 260 }: Props) {
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
-      {/* 外圈光晕 — 标志性设计元素 */}
+      {/* 外圈光晕 */}
       {isActive && (
         <>
           <motion.div
@@ -73,9 +73,21 @@ export default function BreathCircle({ pattern, isActive, size = 260 }: Props) {
         </>
       )}
 
+      {/* Neumorphic outer ring */}
+      <div
+        className="absolute rounded-full"
+        style={{
+          width: size + 12,
+          height: size + 12,
+          background: '#F0FDFA',
+          boxShadow: '-4px -4px 12px rgba(255,255,255,0.8), 4px 4px 12px rgba(0,0,0,0.06)',
+        }}
+      />
+
       {/* 呼吸圈主体 */}
       <motion.div
-        className={`absolute inset-0 rounded-full bg-gradient-to-br ${colors.main} shadow-xl`}
+        className={`absolute rounded-full bg-gradient-to-br ${colors.main} shadow-lg`}
+        style={{ width: size - 12, height: size - 12 }}
         animate={isActive ? { scale: targetScale } : { scale: 1 }}
         transition={{ duration: 1.8, ease: 'easeInOut' }}
       />
@@ -83,7 +95,7 @@ export default function BreathCircle({ pattern, isActive, size = 260 }: Props) {
       {/* 内圈 */}
       <motion.div
         className="absolute rounded-full bg-white/15 backdrop-blur-sm"
-        style={{ width: size * 0.68, height: size * 0.68 }}
+        style={{ width: (size - 12) * 0.68, height: (size - 12) * 0.68 }}
         animate={isActive ? { scale: targetScale } : { scale: 1 }}
         transition={{ duration: 1.8, ease: 'easeInOut' }}
       />
@@ -91,7 +103,7 @@ export default function BreathCircle({ pattern, isActive, size = 260 }: Props) {
       {/* 最内圈 */}
       <motion.div
         className="absolute rounded-full bg-white/10"
-        style={{ width: size * 0.42, height: size * 0.42 }}
+        style={{ width: (size - 12) * 0.42, height: (size - 12) * 0.42 }}
         animate={isActive ? { scale: targetScale } : { scale: 1 }}
         transition={{ duration: 1.8, ease: 'easeInOut' }}
       />
@@ -99,7 +111,8 @@ export default function BreathCircle({ pattern, isActive, size = 260 }: Props) {
       {/* 中心文字 */}
       <div className="relative z-10 flex flex-col items-center">
         <motion.span
-          className="text-3xl font-bold text-white drop-shadow-md tracking-wider"
+          className="text-2xl font-bold text-white drop-shadow-md tracking-wider"
+          style={{ fontFamily: 'var(--font-heading)' }}
           animate={isActive ? { scale: [1, 1.08, 1] } : { scale: 1 }}
           transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
         >
